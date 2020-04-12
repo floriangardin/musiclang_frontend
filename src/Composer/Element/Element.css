@@ -1,0 +1,20 @@
+/*
+ * Element css File
+*/
+
+.Element {
+    /* propertys here */
+}
+
+.element-simple {
+    width: 18%;
+    display: inline;
+}
+
+DropdownButton {
+    float: left;
+}
+
+Button {
+    float: right;
+}

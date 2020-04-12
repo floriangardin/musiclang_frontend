@@ -9,7 +9,11 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",
-    "midi-sounds-react": "floriangardin/midi-sounds-react#master"
+    "midi-sounds-react": "floriangardin/midi-sounds-react#master",
+    "react-bootstrap": "*",
+    "bootstrap": "*",
+    "node-sass": "*",
+    "@khanacademy/react-multi-select": "*"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -31,5 +35,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@material-ui/core": "^4.9.9"
   }
 }
