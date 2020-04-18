@@ -13,7 +13,7 @@
     "react-bootstrap": "*",
     "bootstrap": "*",
     "node-sass": "*",
-    "@khanacademy/react-multi-select": "*"
+    "react-beautiful-dnd": "*"
   },
   "scripts": {
     "start": "react-scripts start",

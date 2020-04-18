@@ -1,8 +1,15 @@
 // change the theme
 $theme-colors: (
-        "primary": #3374d9,
-        "danger": #ff4136
+        "primary": #1BBDAF,
+        "danger": #DE6550,
+        "success": #40C750,
+        "normal": #C9C9C3,
+        "secondary": #B55EBD,
+        "default": #b4b7ff
 );
 
 // Import Bootstrap and its default variables
 @import '~bootstrap/scss/bootstrap.scss';
+
+
+

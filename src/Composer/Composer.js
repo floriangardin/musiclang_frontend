@@ -4,6 +4,8 @@ import Dropdown from "react-bootstrap/Dropdown";
 import {Container, DropdownButton} from "react-bootstrap";
 import Element from "./Element";
 import Button from "react-bootstrap/Button";
+import DragComposer from "../DragComposer";
+import {DragDropContext, Draggable} from "react-beautiful-dnd";
 
 
 class Composer extends Component {
@@ -30,13 +32,16 @@ class Composer extends Component {
     this.candidateGivenType = {"mode": this.modeCandidates, "note": this.noteCandidates,
         "style": this.styleCandidates, "chord": this.chordCandidates, "duration": this.durationCandidates};
     this.state = {display: false, score: [], maxId: 0};
-
+    this.refDragComposer = React.createRef();
   }
-
 
   // componentWillMount(){}
   componentDidMount(){
 
+      const node = this.refDragComposer.current;
+      node.addRow();
+      ["mode", "note", "style", "chord", "duration", "mode", "note", "style", "chord", "duration"].forEach(
+          (el) => node.addElement(el, this.candidateGivenType[el][0], this.candidateGivenType[el]))
 
   }
 
@@ -44,44 +49,50 @@ class Composer extends Component {
     let score = this.state.score.filter((el) => el.props.idx != idx)
     this.setState({score});
   }
-  addComponent(comp){
-      let score = this.state.score;
-      score.push(<Element key={this.state.maxId} idx={this.state.maxId} type={comp}
-                                                        candidates={this.candidateGivenType[comp]}
-                                                        value={this.candidateGivenType[comp][0]}
-                                                        onDelete={this.deleteEvent.bind(this)}
-      />);
 
-      this.setState({score: score, maxId: this.state.maxId + 1})
-  }
   // componentWillUnmount(){}
 
   // componentWillReceiveProps(){}
   // shouldComponentUpdate(){}
   // componentWillUpdate(){}
   // componentDidUpdate(){}
+addComponent(comp){
+    const node = this.refDragComposer.current;
+    node.addElement(comp, this.candidateGivenType[comp][0], this.candidateGivenType[comp]);
 
+
+}
+
+addRow(){
+    this.refDragComposer.current.addRow();
+}
+deleteRow(){
+  this.refDragComposer.current.deleteRow();
+}
   render() {
 
     return (
-      <div>
-          <Container>
-                <div className="element-array">
-                    {this.state.score.map(e => e)}
-                </div>
+    <div>
+        <Container className="container-inline">
+
+            <DragComposer ref={this.refDragComposer}></DragComposer>
 
 
-              <DropdownButton title="+ Add Element">
-                  {this.elementTypes.map(
-                      (el) =>
-                          <Dropdown.Item key={el} onClick={() => this.addComponent(el)}>{el}</Dropdown.Item>)
-                  }
+            <DropdownButton className="btn-sample" title="+ Add Element">
+                {this.elementTypes.map(
+                (el) =>
+                <Dropdown.Item key={el} onClick={() => this.addComponent(el)}>{el}</Dropdown.Item>)
+                }
 
-              </DropdownButton>
-          </Container>
+            </DropdownButton>
+
+            <Button className="btn-success" onClick={this.addRow.bind(this)}> Add row</Button>
+            <Button className="btn-danger" onClick={this.deleteRow.bind(this)}> Delete row</Button>
+
+        </Container>
 
 
-      </div>
+    </div>
     );
   }
 }

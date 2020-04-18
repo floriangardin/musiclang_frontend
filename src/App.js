@@ -3,6 +3,8 @@ import logo from './logo.svg';
 import './App.css';
 import Composer from "./Composer";
 import Player from "./Player";
+import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
+import DragComposer from "./DragComposer";
 
 class App extends Component {
 
@@ -12,7 +14,10 @@ class App extends Component {
             <div className="App">
                 <Composer></Composer>
                 <Player></Player>
+
+
             </div>
+
         );
     }
 }

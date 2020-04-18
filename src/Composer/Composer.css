@@ -4,8 +4,18 @@
 
 .Composer {
     /* propertys here */
+    width: 50%;
 }
 
 .element-array{
+    display: inline;
+}
+
+.add-element {
+    display: inline;
+}
+
+.container-inline{
+
     display: inline;
 }

@@ -4,8 +4,10 @@
 
 .Player {
     /* propertys here */
-
-
 }
 
+.player {
+    /* propertys here */
+    margin: 100px;
+}
 .hidden { display:none; }
