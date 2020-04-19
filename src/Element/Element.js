@@ -35,7 +35,7 @@ class Element extends Component {
                     {this.props.candidates.map(
                         (el) =>
                             <Dropdown.Item className="flexnav" key={el}
-                                           onClick={() => this.onChangeValue(this.props.index, el)}>{el}</Dropdown.Item>)
+                                           onClick={() => this.onChangeValue(this.props.rowIndex, this.props.columnIndex, el)}>{el}</Dropdown.Item>)
                     }
 
                 </DropdownButton>

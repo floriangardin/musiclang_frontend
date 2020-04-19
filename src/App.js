@@ -1,21 +1,15 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
-import Composer from "./Composer";
 import Player from "./Player";
-import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
-import DragComposer from "./DragComposer";
+import Sequencer from "./Sequencer";
 
 class App extends Component {
-
 
     render() {
         return (
             <div className="App">
-                <Composer></Composer>
+                <Sequencer></Sequencer>
                 <Player></Player>
-
-
             </div>
 
         );
