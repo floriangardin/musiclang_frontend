@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 import Player from "./Player";
 import Sequencer from "./Sequencer";
+import ContextMenu from "./ContextMenu/ContextMenu";
 
 class App extends Component {
 

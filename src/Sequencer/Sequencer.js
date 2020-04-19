@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import './Sequencer.css';
+import './Sequencer.scss';
 import Dropdown from "react-bootstrap/Dropdown";
 import {DragDropContext, Draggable, Droppable} from "react-beautiful-dnd";
 import Element from "../Element";
 import Button from "react-bootstrap/Button";
 import {Container, DropdownButton} from "react-bootstrap";
+import ContextMenu from "../ContextMenu/ContextMenu";
 
 const zip = (...arrays) => {
   return arrays[0].map(function(_,i){
@@ -38,7 +39,6 @@ const getListStyle = isDraggingOver => ({
   background: isDraggingOver ? 'lightblue' : 'lightgrey',
   display: 'flex',
   padding: grid,
-  overflow: 'visible',
 });
 
 
@@ -75,7 +75,9 @@ class Sequencer extends Component {
         {'type': 'note', 'value': 'F', 'candidates': this.candidateGivenType['note']}
       ]
 
-      ]};
+      ], contextVisible: false, selectedRow: 0, x: 0, y: 1};
+
+
     this.renderRows = this.renderRows.bind(this);
     this.renderItems = this.renderItems.bind(this);
     this.onChangeValue = this.onChangeValue.bind(this);
@@ -121,14 +123,24 @@ class Sequencer extends Component {
         );
     }
     return resultItem;
+  }
 
+  handleLeftClick(rowIndex){
+    console.log('Right click',
+      rowIndex,
+      this.state.contextVisible,
+      this.state.selectedRow,
+      );
   }
 
   handleClick(e, rowIndex){
+    e.preventDefault();
+    this.setState({x: e.clientX, y: e.clientY});
     if (e.type === 'click') {
-      console.log('Left click', rowIndex);
+      this.setState({contextVisible: false, selectedRow: rowIndex});
     } else if (e.type === 'contextmenu') {
-      console.log('Right click', rowIndex);
+      this.setState({contextVisible: true, selectedRow: rowIndex});
+      this.handleLeftClick(rowIndex)
     }
   }
 
@@ -160,9 +172,9 @@ class Sequencer extends Component {
     rows.push([]);
     this.setState({rows});
   }
-  deleteRow(){
+  deleteRow(index){
     let rows = this.state.rows;
-    rows.splice(-1);
+    rows.splice(index);
     this.setState({rows});
   }
   addElement(el, rowIndex){
@@ -197,6 +209,9 @@ class Sequencer extends Component {
     this.setState({rows});
   }
 
+  getDictContext(el){
+    return {callback: (() => this.addElement(el, this.state.selectedRow)), text: "Add " + el};
+  }
   render() {
     return (
       <div>
@@ -210,7 +225,13 @@ class Sequencer extends Component {
           }
         </DropdownButton>
         <Button className="btn-success" onClick={this.addRow}> Add row</Button>
-        <Button className="btn-danger" onClick={this.deleteRow}> Delete row</Button>
+        <Button className="btn-danger" onClick={() => this.deleteRow(this.state.rows.length - 1)}> Delete row</Button>
+        <ContextMenu key="context" onClick={(e) => this.handleClick(e, this.state.selectedRow)}
+                     addItems={
+          this.elementTypes.map(
+            (el) => this.getDictContext(el)
+          )
+        } deleteItems={[{callback: (() => this.deleteRow(this.state.selectedRow)), text: "Delete row"}]} visible={this.state.contextVisible} x={this.state.x} y={this.state.y}/>
       </div>
     );
   }
