@@ -6,6 +6,7 @@ import Element from "../Element";
 import Button from "react-bootstrap/Button";
 import {Container, DropdownButton} from "react-bootstrap";
 import ContextMenu from "../ContextMenu/ContextMenu";
+import Player from "../Player";
 
 const zip = (...arrays) => {
   return arrays[0].map(function(_,i){
@@ -60,22 +61,38 @@ class Sequencer extends Component {
       'viib', 'vii', 'vii#',
     ]
     this.durationCandidates = [
-      'double whole', 'whole'
+      'double whole', 'whole', 'half', 'quarter', 'eight'
     ]
     this.elementTypes = ["mode", "note", "style", "chord", "duration"];
     this.candidateGivenType = {"mode": this.modeCandidates, "note": this.noteCandidates,
       "style": this.styleCandidates, "chord": this.chordCandidates, "duration": this.durationCandidates};
     this.state = {rows: [
         [
+          {'type': 'mode', 'value': 'Major', 'candidates': this.candidateGivenType['mode']},
           {'type': 'note', 'value': 'C', 'candidates': this.candidateGivenType['note']},
-          {'type': 'note', 'value': 'D', 'candidates': this.candidateGivenType['note']}
+          {'type': 'style', 'value': 'Chopin', 'candidates': this.candidateGivenType['style']},
+          {'type': 'chord', 'value': 'i', 'candidates': this.candidateGivenType['chord']},
+          {'type': 'chord', 'value': 'iii', 'candidates': this.candidateGivenType['chord']},
+          {'type': 'chord', 'value': 'v', 'candidates': this.candidateGivenType['chord']},
+          {'type': 'duration', 'value': 'quarter', 'candidates': this.candidateGivenType['duration']}
         ],
         [
-        {'type': 'note', 'value': 'E', 'candidates': this.candidateGivenType['note']},
-        {'type': 'note', 'value': 'F', 'candidates': this.candidateGivenType['note']}
+          {'type': 'chord', 'value': 'vi', 'candidates': this.candidateGivenType['chord']},
+          {'type': 'chord', 'value': 'i', 'candidates': this.candidateGivenType['chord']},
+          {'type': 'chord', 'value': 'iii', 'candidates': this.candidateGivenType['chord']},
+          {'type': 'duration', 'value': 'quarter', 'candidates': this.candidateGivenType['duration']}
       ]
 
-      ], contextVisible: false, selectedRow: 0, x: 0, y: 1};
+      ], contextVisible: false, selectedRow: 0, x: 0, y: 1,
+    score: {
+      midi_to_play: [{pitch: 60, duration: 2.5, offset:1, track: 1, volume:100},
+        {pitch: 64, duration: 2.5, offset:2, track: 1, volume: 70},
+        {pitch: 67, duration: 2.5, offset:3, track: 1, volume: 20},
+        {pitch: 67, duration: 2.5, offset:4, track: 1, volume: 10}
+      ],
+      instruments: {0: 3, 1:3 },
+      tempo: 120}
+    };
 
 
     this.renderRows = this.renderRows.bind(this);
@@ -86,7 +103,37 @@ class Sequencer extends Component {
     this.deleteRow = this.deleteRow.bind(this);
     this.addElement = this.addElement.bind(this);
     this.handleClick = this.handleClick.bind(this);
+    this.addRowAt = this.addRowAt.bind(this);
+    this.loadScoreFromBackend = this.loadScoreFromBackend.bind(this);
   }
+
+
+  loadScoreFromBackend(){
+
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ score: this.state.rows})
+    };
+    fetch("http://localhost:5000/post", requestOptions)
+      .then(res => res.json())
+      .then(
+        (result) => {
+          this.setState({score:{
+            instruments: result.instruments,
+            tempo: result.tempo,
+            midi_to_play: result.score}
+          });
+        },
+        (error) => {
+          this.setState({
+            isLoaded: true,
+            error
+          });
+        }
+      )
+  }
+
 
   onChangeValue(rowIndex, columnIndex, value){
     let rows = this.state.rows;
@@ -125,14 +172,6 @@ class Sequencer extends Component {
     return resultItem;
   }
 
-  handleLeftClick(rowIndex){
-    console.log('Right click',
-      rowIndex,
-      this.state.contextVisible,
-      this.state.selectedRow,
-      );
-  }
-
   handleClick(e, rowIndex){
     e.preventDefault();
     this.setState({x: e.clientX, y: e.clientY});
@@ -140,7 +179,6 @@ class Sequencer extends Component {
       this.setState({contextVisible: false, selectedRow: rowIndex});
     } else if (e.type === 'contextmenu') {
       this.setState({contextVisible: true, selectedRow: rowIndex});
-      this.handleLeftClick(rowIndex)
     }
   }
 
@@ -154,6 +192,7 @@ class Sequencer extends Component {
           {(provided, snapshot) => (
             <div
               ref={provided.innerRef}
+              className="row-sequencer"
               style={getListStyle(snapshot.isDraggingOver)}
               {...provided.droppableProps}
             >
@@ -172,9 +211,16 @@ class Sequencer extends Component {
     rows.push([]);
     this.setState({rows});
   }
+  addRowAt(index){
+    let rowsBefore = this.state.rows.slice(0, index + 1);
+    let rowsAfter = this.state.rows.slice(index + 1, this.state.rows.length);
+    rowsBefore.push([]);
+    let rows = rowsBefore.concat(rowsAfter);
+    this.setState({rows});
+  }
   deleteRow(index){
     let rows = this.state.rows;
-    rows.splice(index);
+    rows.splice(index, 1);
     this.setState({rows});
   }
   addElement(el, rowIndex){
@@ -231,7 +277,10 @@ class Sequencer extends Component {
           this.elementTypes.map(
             (el) => this.getDictContext(el)
           )
-        } deleteItems={[{callback: (() => this.deleteRow(this.state.selectedRow)), text: "Delete row"}]} visible={this.state.contextVisible} x={this.state.x} y={this.state.y}/>
+        } deleteItems={[{callback: (() => this.deleteRow(this.state.selectedRow)), text: "Delete row"},
+          {callback: (() => this.addRowAt(this.state.selectedRow)), text: "Add row after"}
+        ]} visible={this.state.contextVisible} x={this.state.x} y={this.state.y}/>
+        <Player score={this.state.score} loadScoreFromBackend={this.loadScoreFromBackend}></Player>
       </div>
     );
   }

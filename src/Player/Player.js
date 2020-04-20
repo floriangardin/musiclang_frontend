@@ -11,39 +11,12 @@ class Player extends Component {
       error: null,
       isLoaded: false,
       items: [],
-      midi_to_play: [{pitch: 60, duration: 2.5, offset:1, track: 1, volume:100},
-        {pitch: 64, duration: 2.5, offset:2, track: 1, volume: 70},
-        {pitch: 67, duration: 2.5, offset:3, track: 1, volume: 20},
-        {pitch: 67, duration: 2.5, offset:4, track: 1, volume: 10}
-      ],
-      instruments: {0: 3, 1:3 },
-      tempo: 120,
       currentOffset: 0,
       startTime: 0,
       durationQuarter: 0.5,
     };
   }
 
-  loadScoreFromBackend(){
-    fetch("http://localhost:5000/")
-        .then(res => res.json())
-        .then(
-            (result) => {
-              console.log(result);
-              this.setState({
-                instruments: result.instruments,
-                tempo: result.tempo,
-                midi_to_play: result.score
-              });
-            },
-            (error) => {
-              this.setState({
-                isLoaded: true,
-                error
-              });
-            }
-        )
-  }
 
   stop(){
     this.midiSounds.cancelQueue();
@@ -66,17 +39,17 @@ class Player extends Component {
     this.midiSounds.setMasterVolume(0.3);
     this.midiSounds.setEchoLevel(0.1);
     this.midiSounds.cancelQueue();
-    let bpm = this.state.tempo;
+    let bpm = this.props.score.tempo;
     let N = 4 * 60 / bpm;
     let durationQuarter = N/4;
     let startTime = this.midiSounds.audioContext.currentTime;
     this.setState({startTime: startTime, durationQuarter: durationQuarter})
-    for(let i=0; i < this.state.midi_to_play.length; i++){
-      let toPlay = this.state.midi_to_play[i];
+    for(let i=0; i < this.props.score.midi_to_play.length; i++){
+      let toPlay = this.props.score.midi_to_play[i];
       if(toPlay.offset >= this.state.currentOffset){
         let currentOffset = this.state.currentOffset;
         this.midiSounds.playChordAt(startTime + (toPlay.offset - currentOffset)* durationQuarter,
-            this.state.instruments[toPlay.track],
+            this.props.score.instruments[toPlay.track],
             [toPlay.pitch], toPlay.duration, toPlay.volume);
       }
     }
@@ -86,7 +59,7 @@ class Player extends Component {
     return (
           <div className="player">
             <ButtonGroup color="primary" aria-label="outlined primary button group">
-              <Button onClick={this.loadScoreFromBackend.bind(this)}>Load</Button>
+              <Button onClick={this.props.loadScoreFromBackend}>Load</Button>
               <Button onClick={this.play.bind(this)}>Play</Button>
               <Button onClick={this.pause.bind(this)}>Pause</Button>
               <Button onClick={this.stop.bind(this)}>Stop</Button>

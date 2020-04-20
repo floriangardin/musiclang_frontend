@@ -40,6 +40,7 @@ class ContextMenu extends Component {
     if (bottom) {
       style.top = `${clickY - rootH - 5}px`;
     }
+    style.textAlign = 'left';
     style.overflow = 'inherit';
 
     if(!this.props.visible){
