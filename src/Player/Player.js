@@ -58,6 +58,9 @@ class Player extends Component {
   render() {
     return (
           <div className="player">
+            <div hidden={!this.props.loading} className="loader center">
+              <i className="fa fa-cog fa-spin" />
+            </div>
             <ButtonGroup color="primary" aria-label="outlined primary button group">
               <Button onClick={this.props.loadScoreFromBackend}>Load</Button>
               <Button onClick={this.play.bind(this)}>Play</Button>

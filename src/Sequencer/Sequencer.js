@@ -61,7 +61,7 @@ class Sequencer extends Component {
       'viib', 'vii', 'vii#',
     ]
     this.durationCandidates = [
-      'double whole', 'whole', 'half', 'quarter', 'eight'
+      'quarter', 'eight'
     ]
     this.elementTypes = ["mode", "note", "style", "chord", "duration"];
     this.candidateGivenType = {"mode": this.modeCandidates, "note": this.noteCandidates,
@@ -91,7 +91,8 @@ class Sequencer extends Component {
         {pitch: 67, duration: 2.5, offset:4, track: 1, volume: 10}
       ],
       instruments: {0: 3, 1:3 },
-      tempo: 120}
+      tempo: 120},
+    loading: false
     };
 
 
@@ -109,7 +110,7 @@ class Sequencer extends Component {
 
 
   loadScoreFromBackend(){
-
+    this.setState({loading: true});
     const requestOptions = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -122,12 +123,14 @@ class Sequencer extends Component {
           this.setState({score:{
             instruments: result.instruments,
             tempo: result.tempo,
-            midi_to_play: result.score}
+            midi_to_play: result.score},
+            loading: false
           });
         },
         (error) => {
           this.setState({
             isLoaded: true,
+            loading: false,
             error
           });
         }
@@ -280,7 +283,7 @@ class Sequencer extends Component {
         } deleteItems={[{callback: (() => this.deleteRow(this.state.selectedRow)), text: "Delete row"},
           {callback: (() => this.addRowAt(this.state.selectedRow)), text: "Add row after"}
         ]} visible={this.state.contextVisible} x={this.state.x} y={this.state.y}/>
-        <Player score={this.state.score} loadScoreFromBackend={this.loadScoreFromBackend}></Player>
+        <Player score={this.state.score} loading={this.state.loading} loadScoreFromBackend={this.loadScoreFromBackend}></Player>
       </div>
     );
   }
